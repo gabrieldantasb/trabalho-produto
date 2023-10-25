@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD PRODUTO</title>
+</head>
+<body>
+<h2>Cadastro de Produto</h2>
+    <label for="codigo">Código:</label>
+    <input type="number" id="codigo" name="codigo">
+    <button onclick="deletarProduto()">Deletar</button>
+    <div id = "message"></div>
+    <br><br>
+
+    <label for="descricao">Descrição:</label>
+    <input type="text" id="descricao" name="descricao"><br><br>
+
+    <label for="preco">Preço:</label>
+    <input type="number" step="0.01" id="preco" name="preco"><br><br>
+
+    <label for="qtde">Quantidade:</label>
+    <input type="number" id="qtde" name="qtde"><br><br>
+
+<button onclick="criarProduto()">Criar</button>
+<button onclick="atualizarProduto()">Atualizar</button>
+
+<h2>Lista de Produtos</h2>
+<div id="listaProdutos"></div>
+<button onclick="listarProdutos()">Listar Produtos</button>
+
+<script>
+    function listarProdutos() {
+       var listaProdutosDiv = document.getElementById('listaProdutos');
+       listaProdutosDiv.innerHTML = ''; // Limpar a lista antes de adicionar os produtos
+        fetch('http://localhost:8080/produto/listar')
+        .then(response => {return response.json();})
+        .then(data => {
+            data.forEach(product => {
+                 var produtoDiv = document.createElement('div');
+                  produtoDiv.textContent = 'Codigo: ' + product.codigo + ' Descricao: ' + product.descricao + ' Preco: ' + product.preco + ' Qtde: ' + product.qtde
+                  listaProdutosDiv.appendChild(produtoDiv);
+            })
+        })
+    }
+
+    function deletarProduto() {
+        var codigo = document.getElementById('codigo').value;
+        var message = document.getElementById('message');
+        if (codigo == '') {
+            alert('Insira um codigo de produto.')
+        } else {
+            fetch('http://localhost:8080/produto/deletar/' + codigo, {
+              method: 'DELETE',
+            })
+            .then(res => res.json())
+            .then(res => message.innerHTML = 'Produto deletado.')
+        }
+    }
+
+    function criarProduto() {
+    var produto = {
+            descricao: document.getElementById('descricao').value,
+            preco: document.getElementById('preco').value,
+            qtde: document.getElementById('qtde').value
+        }
+fetch('http://localhost:8080/produto/criar', {
+              method: 'POST',
+              body: JSON.stringify(produto),
+                headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+            })
+            .then(res => res.json())
+            .then(res => message.innerHTML = 'Produto criado.')
+    }
+
+        function atualizarProduto() {
+        var codigo = document.getElementById('codigo').value
+    var produto = {
+            descricao: document.getElementById('descricao').value,
+            preco: document.getElementById('preco').value,
+            qtde: document.getElementById('qtde').value
+        }
+fetch('http://localhost:8080/produto/atualizar/' + codigo, {
+              method: 'PUT',
+              body: JSON.stringify(produto),
+                headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+            })
+            .then(res => res.json())
+            .then(res => message.innerHTML = 'Produto atualizado.')
+    }
+</script>
+
+</body>
+</html>
